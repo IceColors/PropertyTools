@@ -387,7 +387,7 @@ namespace PropertyTools.Wpf
             var properties = TypeDescriptor.GetProperties(itemType);
             foreach (var pd in this.Owner.PropertyDefinitions)
             {
-                if (!string.IsNullOrEmpty(pd.PropertyName))
+                if (!string.IsNullOrWhiteSpace(pd.PropertyName))
                 {
                     var descriptor = properties[pd.PropertyName];
                     this.SetPropertiesFromDescriptor(pd, descriptor);
@@ -522,7 +522,7 @@ namespace PropertyTools.Wpf
         {
             var pd = this.GetPropertyDefinition(cell);
             var item = this.GetItem(cell);
-            return pd.PropertyName != null ? item : this.Owner.ItemsSource;
+            return !string.IsNullOrWhiteSpace(pd.PropertyName) ? item : this.Owner.ItemsSource;
         }
 
         /// <summary>

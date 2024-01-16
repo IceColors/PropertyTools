@@ -782,7 +782,7 @@ namespace PropertyTools.Wpf
 
             foreach (var cd in property.Columns)
             {
-                if (cd.PropertyName == string.Empty && property.ListItemItemsSource != null)
+                if (string.IsNullOrWhiteSpace(cd.PropertyName) && property.ListItemItemsSource != null)
                 {
                     cd.ItemsSource = property.ListItemItemsSource;
                 }

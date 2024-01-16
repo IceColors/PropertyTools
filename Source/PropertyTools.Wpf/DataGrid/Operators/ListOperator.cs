@@ -73,7 +73,6 @@ namespace PropertyTools.Wpf
             }
 
             // Strategy 2: get properties from type descriptor
-            var itemType = this.GetItemType(list);
             var properties = TypeDescriptor.GetProperties(itemType);
             if (properties.Count == 0)
             {
@@ -105,11 +104,10 @@ namespace PropertyTools.Wpf
             }
 
             // Strategy 3: create a single column
-            var itemsType = this.GetItemType(list);
             yield return
                 new ColumnDefinition
                 {
-                    Header = itemsType.Name,
+                    Header = itemType.Name,
                     HorizontalAlignment = this.DefaultHorizontalAlignment,
                     Width = this.DefaultColumnWidth
                 };
@@ -216,7 +214,7 @@ namespace PropertyTools.Wpf
         public override string GetBindingPath(CellRef cell)
         {
             var pd = this.GetPropertyDefinition(cell);
-            if (pd?.PropertyName != null)
+            if (!string.IsNullOrWhiteSpace(pd?.PropertyName))
             {
                 return pd.PropertyName;
             }
