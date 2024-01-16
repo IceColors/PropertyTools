@@ -6,14 +6,14 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>PropertyTools.snk</AssemblyOriginatorKeyFile>
     <Description>Custom controls for WPF: PropertyGrid, DataGrid, multi-select TreeView, ColorPicker and more</Description>
-
+      	
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/PropertyTools/PropertyTools/</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>wpf controls propertygrid dataform datagrid treeview colorpicker</PackageTags>
-
+    <LangVersion>9.0</LangVersion>
     <Version>0.0.1</Version>
   </PropertyGroup>
   <ItemGroup>

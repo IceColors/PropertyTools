@@ -2757,6 +2757,8 @@ namespace PropertyTools.Wpf
                 return;
             }
 
+            var shouldUpdateCellContent = this.GetCellElement(changedCell)?.DataContext is not INotifyPropertyChanged;
+
             // Set the same value in all selected cells.
             foreach (var cell in selectedCells)
             {
@@ -2768,7 +2770,12 @@ namespace PropertyTools.Wpf
 
                 if (cell.Equals(changedCell))
                 {
-                    // the current cell should already be set
+                    // The current cell should already be set, but might not have updated cell content
+                    if(shouldUpdateCellContent)
+                    {
+                        this.UpdateCellContent(cell);
+                    }
+
                     continue;
                 }
 
