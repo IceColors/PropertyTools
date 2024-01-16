@@ -45,6 +45,20 @@ namespace PropertyTools.Wpf
                 yield break;
             }
 
+            // Strategy 0: check if item type is string
+            var itemType = this.GetItemType(list);
+            if (itemType.IsAssignableFrom(typeof(string)))
+            {
+                yield return
+                    new ColumnDefinition
+                    {
+                        Header = itemType.Name,
+                        HorizontalAlignment = this.DefaultHorizontalAlignment,
+                        Width = this.DefaultColumnWidth
+                    };
+                yield break;
+            }
+
             // Strategy 1: get properties from IItemProperties
             var view = CollectionViewSource.GetDefaultView(list);
             var itemPropertiesView = view as IItemProperties;
