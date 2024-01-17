@@ -53,8 +53,8 @@ namespace PropertyTools.Wpf
                     new ColumnDefinition
                     {
                         Header = itemType.Name,
-                        HorizontalAlignment = this.DefaultHorizontalAlignment,
-                        Width = this.DefaultColumnWidth
+                        HorizontalAlignment = this.Owner.DefaultHorizontalAlignment,
+                        Width = this.Owner.DefaultColumnWidth
                     };
                 yield break;
             }
@@ -76,8 +76,8 @@ namespace PropertyTools.Wpf
                     {
                         PropertyName = descriptor.Name,
                         Header = info.Name,
-                        HorizontalAlignment = this.DefaultHorizontalAlignment,
-                        Width = this.DefaultColumnWidth
+                        HorizontalAlignment = this.Owner.DefaultHorizontalAlignment,
+                        Width = this.Owner.DefaultColumnWidth
                     };
 
                     yield return cd;
@@ -107,8 +107,8 @@ namespace PropertyTools.Wpf
                     {
                         PropertyName = descriptor.Name,
                         Header = descriptor.Name,
-                        HorizontalAlignment = this.DefaultHorizontalAlignment,
-                        Width = this.DefaultColumnWidth
+                        HorizontalAlignment = this.Owner.DefaultHorizontalAlignment,
+                        Width = this.Owner.DefaultColumnWidth
                     };
 
                     yield return cd;
@@ -122,8 +122,8 @@ namespace PropertyTools.Wpf
                 new ColumnDefinition
                 {
                     Header = itemType.Name,
-                    HorizontalAlignment = this.DefaultHorizontalAlignment,
-                    Width = this.DefaultColumnWidth
+                    HorizontalAlignment = this.Owner.DefaultHorizontalAlignment,
+                    Width = this.Owner.DefaultColumnWidth
                 };
         }
 

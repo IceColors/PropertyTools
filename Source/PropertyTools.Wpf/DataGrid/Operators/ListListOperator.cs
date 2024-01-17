@@ -155,8 +155,8 @@ namespace PropertyTools.Wpf
                      new ColumnDefinition
                      {
                          Header = innerType.Name,
-                         HorizontalAlignment = this.DefaultHorizontalAlignment,
-                         Width = this.DefaultColumnWidth
+                         HorizontalAlignment = this.Owner.DefaultHorizontalAlignment,
+                         Width = this.Owner.DefaultColumnWidth
                      };
             }
         }

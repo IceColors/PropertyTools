@@ -43,22 +43,6 @@ namespace PropertyTools.Wpf
         }
 
         /// <summary>
-        /// Gets or sets the default horizontal alignment.
-        /// </summary>
-        /// <value>
-        /// The default horizontal alignment.
-        /// </value>
-        public HorizontalAlignment DefaultHorizontalAlignment { get; set; } = HorizontalAlignment.Center;
-
-        /// <summary>
-        /// Gets or sets the default column width.
-        /// </summary>
-        /// <value>
-        /// The default width of the columns.
-        /// </value>
-        public GridLength DefaultColumnWidth { get; set; } = new GridLength(1, GridUnitType.Star);
-
-        /// <summary>
         /// Gets the this.owner datagrid.
         /// </summary>
         protected DataGrid Owner { get; }
