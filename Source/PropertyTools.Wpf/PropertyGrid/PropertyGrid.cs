@@ -1026,12 +1026,107 @@ namespace PropertyTools.Wpf
             }
         }
 
+
+        // List of tabs
+        class CachedTab
+        {
+            private Tab tab;
+            private readonly DataTemplate tabPageHeaderTemplate;
+            private readonly DataTemplate tabHeaderTemplate;
+
+            public CachedTab(Tab tab, DataTemplate TabPageHeaderTemplate, DataTemplate TabHeaderTemplate)
+            {
+                this.tab = tab;
+                tabPageHeaderTemplate = TabPageHeaderTemplate;
+                tabHeaderTemplate = TabHeaderTemplate;
+            }
+
+            /// <summary>
+            /// Adds the tab page header if TabPageHeaderTemplate is specified.
+            /// </summary>
+            /// <param name="tab">The tab.</param>
+            /// <param name="panel">The tab panel.</param>
+            private void AddTabPageHeader(Grid panel)
+            {
+                if (tabPageHeaderTemplate == null)
+                {
+                    return;
+                }
+
+                panel.RowDefinitions.Add(new System.Windows.Controls.RowDefinition { Height = GridLength.Auto });
+                var hc = new ContentControl
+                {
+                    Focusable = false,
+                    ContentTemplate = tabPageHeaderTemplate,
+                    Content = tab
+                };
+                panel.Children.Add(hc);
+            }
+
+            public FrameworkElement CreateTab(LabelWidthSharing labelWidthSharing, IPropertyGridControlFactory controlFactory, object instance, DataTemplate TabPageHeaderTemplate, DataTemplate TabHeaderTemplate)
+            {
+                bool fillTab = tab.Groups.Count == 1 && tab.Groups[0].Properties.Count == 1
+                                                     && tab.Groups[0].Properties[0].FillTab;
+
+                // Create the panel for the tab content
+                var tabPanel = new Grid();
+
+                if (labelWidthSharing == LabelWidthSharing.SharedInTab)
+                {
+                    Grid.SetIsSharedSizeScope(tabPanel, true);
+                }
+                var tabItem = new TabItem { Header = tab, Padding = new Thickness(4), Name = tab.Id ?? string.Empty };
+
+                controlFactory.UpdateTabForValidationResults(tab, instance);
+
+                if (fillTab)
+                {
+                    tabItem.Content = tabPanel;
+                }
+                else
+                {
+                    tabItem.Content = new ScrollViewer
+                    {
+                        VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                        Content = tabPanel,
+                        Focusable = false
+                    };
+                }
+
+                this.tabControl.Items.Add(tabItem);
+
+                // set no margin if 'fill tab' and no tab page header
+                tabPanel.Margin = new Thickness(fillTab && TabPageHeaderTemplate == null ? 0 : 4);
+
+                if (TabHeaderTemplate != null)
+                {
+                    tabItem.Header = tab;
+                    tabItem.HeaderTemplate = TabHeaderTemplate;
+                }
+
+                this.AddTabPageHeader(tabPanel);
+
+                int i = 0;
+                foreach (var g in tab.Groups)
+                {
+                    var groupPanel = this.CreatePropertyPanel(g, tabPanel, i++, fillTab);
+                    var propertyIndex = 0;
+                    foreach (var pi in g.Properties)
+                    {
+                        // create and add the property panel (label, tooltip icon and property control)
+                        this.AddPropertyPanel(groupPanel, pi, instance, tab, propertyIndex++);
+                    }
+                }
+            }
+        }
+
+
         /// <summary>
         /// Creates the controls.
         /// </summary>
         /// <param name="instance">The instance.</param>
         /// <param name="tabs">The tabs.</param>
-        public virtual void CreateControls(object instance, IEnumerable<Tab> tabs)
+        public virtual void CreateControls(object instance)
         {
             if (this.tabControl == null)
             {
@@ -1049,12 +1144,12 @@ namespace PropertyTools.Wpf
             this.tabControl.Visibility = Visibility.Visible;
             this.scrollViewer.Visibility = Visibility.Hidden;
 
-            if (tabs == null)
+            if (Tabs == null)
             {
                 return;
             }
 
-            foreach (var tab in tabs)
+            foreach (var tab in Tabs)
             {
                 bool fillTab = tab.Groups.Count == 1 && tab.Groups[0].Properties.Count == 1
                                && tab.Groups[0].Properties[0].FillTab;
@@ -1101,10 +1196,11 @@ namespace PropertyTools.Wpf
                 foreach (var g in tab.Groups)
                 {
                     var groupPanel = this.CreatePropertyPanel(g, tabPanel, i++, fillTab);
+                    var propertyIndex = 0;
                     foreach (var pi in g.Properties)
                     {
                         // create and add the property panel (label, tooltip icon and property control)
-                        this.AddPropertyPanel(groupPanel, pi, instance, tab);
+                        this.AddPropertyPanel(groupPanel, pi, instance, tab, propertyIndex++);
                     }
                 }
             }
@@ -1126,7 +1222,7 @@ namespace PropertyTools.Wpf
         /// </summary>
         /// <param name="instance">The instance.</param>
         /// <param name="tabs">The tab collection.</param>
-        public virtual void CreateControlsTabless(object instance, IEnumerable<Tab> tabs)
+        public virtual void CreateControlsTabless(object instance)
         {
             if (this.tabControl == null)
             {
@@ -1137,14 +1233,14 @@ namespace PropertyTools.Wpf
             this.panelControl.Children.Clear();
             this.tabControl.Visibility = Visibility.Hidden;
             this.scrollViewer.Visibility = Visibility.Visible;
-            if (tabs == null)
+            if (Tabs == null)
             {
                 return;
             }
 
             this.panelControl.DataContext = instance;
 
-            foreach (var tab in tabs)
+            foreach (var tab in Tabs)
             {
                 // Create the panel for the properties
                 var panel = new Grid();
@@ -1163,11 +1259,11 @@ namespace PropertyTools.Wpf
                 foreach (var g in tab.Groups)
                 {
                     var propertyPanel = this.CreatePropertyPanel(g, panel, i++, false);
-
+                    var propertyIndex = 0;
                     foreach (var pi in g.Properties)
                     {
                         // create and add the property panel (label, tooltip icon and property control)
-                        this.AddPropertyPanel(propertyPanel, pi, instance, tab);
+                        this.AddPropertyPanel(propertyPanel, pi, instance, tab, propertyIndex++);
                     }
                 }
             }
@@ -1348,36 +1444,13 @@ namespace PropertyTools.Wpf
         }
 
         /// <summary>
-        /// Adds the tab page header if TabPageHeaderTemplate is specified.
-        /// </summary>
-        /// <param name="tab">The tab.</param>
-        /// <param name="panel">The tab panel.</param>
-        private void AddTabPageHeader(Tab tab, Grid panel)
-        {
-            if (this.TabPageHeaderTemplate == null)
-            {
-                return;
-            }
-
-            panel.RowDefinitions.Add(new System.Windows.Controls.RowDefinition { Height = GridLength.Auto });
-            var hc = new ContentControl
-            {
-                Focusable = false,
-                ContentTemplate = this.TabPageHeaderTemplate,
-                Content = tab
-            };
-            panel.Children.Add(hc);
-        }
-
-        /// <summary>
         /// Creates and adds the property panel.
         /// </summary>
-        /// <param name="panel">The panel where the property panel should be added.</param>
         /// <param name="pi">The property.</param>
         /// <param name="instance">The instance.</param>
         /// <param name="tab">The tab.</param>
         [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1126:PrefixCallsCorrectly", Justification = "Reviewed. Suppression is OK here.")]
-        private void AddPropertyPanel(Panel panel, PropertyItem pi, object instance, Tab tab)
+        private FrameworkElement AddPropertyPanel(PropertyItem pi, object instance, Tab tab)
         {
             var propertyPanel = new Grid();
             if (!pi.FillTab)
@@ -1447,8 +1520,53 @@ namespace PropertyTools.Wpf
             this.ConfigureLabel(pi, propertyLabel);
             this.ConfigureControl(pi, propertyControl);
             this.ConfigurePanel(pi, propertyPanel);
+            return propertyPanel;
+        }
 
-            panel.Children.Add(propertyPanel);
+        private void AddPropertyPanel(Panel panel, PropertyItem pi, object instance, Tab tab, int index)
+        {
+            PropertyItemVisualParent[pi] = panel;
+            var propertyPanel = AddPropertyPanel(pi, instance, tab);
+            if (panel.Children.Count > index)
+            {
+                panel.Children.RemoveAt(index);
+                panel.Children.Insert(index, propertyPanel);
+            }
+            else if (panel.Children.Count == index) panel.Children.Add(propertyPanel);
+            else throw new Exception("Attempted to add or replace property panel to invalid index");
+        }
+
+
+
+        public void UpdateControl(PropertyItem pi)
+        {
+            if (PropertyItemVisualParent[pi] is Panel panel)
+            {
+                Tab tab = null;
+                Group group = null;
+                var index = 0;
+                foreach (var t in Tabs)
+                {
+                    foreach (var g in t.Groups)
+                    {
+                        for (var i = 0; i < g.Properties.Count; i++)
+                        {
+                            if (g.Properties[i] == pi)
+                            {
+                                tab = t;
+                                group = g;
+                                index = i;
+                                goto outside;
+                            }
+                        }
+                    }
+                }
+                // Could not find pi in Tabs
+                return;
+                outside:
+
+                AddPropertyPanel(panel, pi, CurrentObject, tab, index);
+            }
         }
 
         /// <summary>
@@ -1823,6 +1941,9 @@ namespace PropertyTools.Wpf
             this.UpdateControls();
         }
 
+        public Tab[] Tabs { get; set; }
+        public Dictionary<PropertyItem, Panel> PropertyItemVisualParent { get; } = new();
+
         /// <summary>
         /// Updates the controls.
         /// </summary>
@@ -1836,16 +1957,17 @@ namespace PropertyTools.Wpf
             var oldIndex = this.tabControl != null ? this.tabControl.SelectedIndex : -1;
 
             var tabs = this.Operator.CreateModel(this.CurrentObject, false, this);
-            var tabsArray = tabs != null ? tabs.ToArray() : null;
+            Tabs = tabs != null ? tabs.ToArray() : null;
             var areTabsVisible = this.TabVisibility == TabVisibility.Visible
-                                 || (this.TabVisibility == TabVisibility.VisibleIfMoreThanOne && tabsArray != null && tabsArray.Length > 1);
+                                 || (this.TabVisibility == TabVisibility.VisibleIfMoreThanOne && Tabs != null && Tabs.Length > 1);
+            PropertyItemVisualParent.Clear();
             if (areTabsVisible)
             {
-                this.CreateControls(this.CurrentObject, tabsArray);
+                this.CreateControls(this.CurrentObject);
             }
             else
             {
-                this.CreateControlsTabless(this.CurrentObject, tabsArray);
+                this.CreateControlsTabless(this.CurrentObject);
             }
 
             var newSelectedObjectType = this.CurrentObject != null ? this.CurrentObject.GetType() : null;

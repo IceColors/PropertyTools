@@ -14,7 +14,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>wpf controls propertygrid dataform datagrid treeview colorpicker</PackageTags>
     <LangVersion>9.0</LangVersion>
-    <Version>0.0.1</Version>
+    <Version>3.2.0-CustomV7</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\Images\icon.png" Pack="true" PackagePath="\" />

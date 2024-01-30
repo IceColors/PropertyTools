@@ -12,7 +12,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>data-annotations attributes dragdrop observable</PackageTags>
 
-    <Version>0.0.1</Version>
+    <Version>3.2.0-CustomV2</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="PropertyTools.snk" />
